@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using common_lib;
+using scheduling_service.Services;
 
 namespace scheduling_service.Controllers
 {
@@ -27,7 +28,7 @@ namespace scheduling_service.Controllers
         }
 
         [HttpPost]
-        public ActionResult<int> scheduleTrip(TripRequest trip)
+        public ActionResult<int> ScheduleTrip(TripRequest trip)
         {
             _logger.LogInformation("scheduleTrip request: {request}", JsonSerializer.Serialize(trip));
 
@@ -42,15 +43,15 @@ namespace scheduling_service.Controllers
         }
 
         [HttpGet("floor-count")]
-        public ActionResult<int> getFloorCount()
+        public ActionResult<int> GetFloorCount()
         {
             _logger.LogInformation("getFloorCount request");
 
-            return Ok(Config.FLOOR_COUNT);
+            return Ok(Config.FloorCount);
         }
 
         [HttpGet("elevators")]
-        public ActionResult<List<Elevator>> getElevators()
+        public ActionResult<List<Elevator>> GetElevators()
         {
             _logger.LogInformation("getElevators request");
 
@@ -59,7 +60,7 @@ namespace scheduling_service.Controllers
                 return StatusCode(503, "Service temporarily down. Please try again later.");
             }
 
-            return Ok(_schedulingSrv.getElevators());
+            return Ok(_schedulingSrv.GetElevators());
         }
     }
 

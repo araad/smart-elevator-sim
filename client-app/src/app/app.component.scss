@@ -29,7 +29,8 @@
 }
 
 .active {
-  background-color: aqua;
+  border: 1px solid green;
+  min-height: 180px;
 }
 
 .elevator-door .mat-icon {
@@ -44,4 +45,8 @@
 .mat-raised-button {
   width: 60px;
   height: 60px;
+}
+
+.elevator-log {
+  min-width: 168px;
 }
