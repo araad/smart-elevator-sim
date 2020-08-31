@@ -1,0 +1,47 @@
+.floor {
+  height: 60px;
+}
+
+.row-header {
+  width: 120px;
+  text-align: center;
+}
+
+.floor-label {
+  text-align: center;
+}
+
+.floor-header,
+.elevator-header {
+  width: 60px;
+  text-align: center;
+}
+
+.elevator-door {
+  width: 60px;
+  height: 60px;
+  border: 1px solid black;
+}
+
+.elevator {
+  height: 54px;
+  border: 1px solid red;
+}
+
+.active {
+  background-color: aqua;
+}
+
+.elevator-door .mat-icon {
+  color: green;
+}
+
+.mat-mini-fab {
+  color: #212121;
+  background-color: #ffffff;
+}
+
+.mat-raised-button {
+  width: 60px;
+  height: 60px;
+}

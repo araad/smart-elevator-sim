@@ -1,0 +1,109 @@
+<div fxLayout fxLayoutGap="40px">
+  <div class="grid-container" fxLayout="column">
+    <div class="header" fxLayout fxLayoutAlign="start center">
+      <div class="row-header">Floor</div>
+      <div>
+        <div style="text-align: center">Elevators</div>
+        <div fxLayout>
+          <div class="elevator-header" *ngFor="let elevator of elevators">
+            {{ elevator.id }}
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngFor="let floor of floors">
+      <div class="floor" fxLayout fxLayoutAlign="start center">
+        <div class="row-header" fxLayout fxLayoutAlign="start center">
+          <div fxFlex fxLayout fxLayoutAlign="center center">
+            <button
+              mat-mini-fab
+              (click)="onCallButtonClick(floor.level, callPanelTpl)"
+            >
+              <mat-icon>elevator</mat-icon>
+            </button>
+          </div>
+          <div class="floor-label" fxFlex>{{ floor.level }}</div>
+        </div>
+        <div
+          *ngFor="let elevator of elevators"
+          class="elevator-door"
+          fxLayout
+          fxLayoutAlign="center center"
+        >
+          <div *ngIf="elevator.currentFloor === floor.level">
+            <ng-container *ngIf="elevator.queue.length > 0">
+              <mat-icon
+                *ngIf="!elevator.doorsOpen && elevator.currentDirection === 1"
+                >arrow_upward</mat-icon
+              >
+              <mat-icon
+                *ngIf="!elevator.doorsOpen && elevator.currentDirection === 0"
+                >arrow_downward</mat-icon
+              >
+            </ng-container>
+            <div *ngIf="elevator.doorsOpen">Open</div>
+            <div *ngIf="!elevator.doorsOpen && elevator.queue.length === 0">
+              Closed
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div fxLayout="row wrap" fxLayoutGap="24px">
+    <div *ngFor="let elevator of elevators">
+      <h4>Elevator {{ elevator.id }}</h4>
+      <p>Current Floor: {{ elevator.currentFloor }}</p>
+      <p>
+        Current Direction:
+        {{
+          elevator.queue.length === 0 || elevator.doorsOpen
+            ? "n/a"
+            : elevator.currentDirection === 0
+            ? "Down"
+            : "Up"
+        }}
+      </p>
+      <p>Doors: {{ elevator.doorsOpen ? "Open" : "Closed" }}</p>
+      <div *ngFor="let trip of elevator.queue">
+        <pre [ngClass]="{ active: trip?.status === 1 }">{{ trip | json }}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #callPanelTpl let-data>
+  <div mat-dialog-title style="text-align: center">
+    You are on floor {{ data.origin }}
+  </div>
+  <div *ngIf="!data.submitted">
+    <p style="text-align: center">Please select floor</p>
+    <div fxLayout fxLayoutAlign="center center">
+      <div fxLayout="row wrap" fxLayoutGap="16px grid" style="max-width: 242px">
+        <div *ngFor="let floor of floors">
+          <button
+            mat-raised-button
+            [disabled]="floor.level === data.origin"
+            (click)="onFloorButtonClick(data, floor.level)"
+          >
+            {{ floor.level }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ng-container *ngIf="data.submitted">
+    <div
+      *ngIf="data.response !== undefined || data.response !== null"
+      fxLayout="column"
+      fxLayoutAlign="center center"
+    >
+      <p style="font-size: 21px; margin-bottom: 30px">
+        Elevator {{ data.response }} to floor {{ data.destination }}
+      </p>
+      <mat-dialog-actions>
+        <button mat-button mat-dialog-close>Close</button>
+      </mat-dialog-actions>
+    </div>
+  </ng-container>
+</ng-template>
