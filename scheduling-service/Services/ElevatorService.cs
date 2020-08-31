@@ -24,7 +24,7 @@ namespace scheduling_service.Services
             while (true)
             {
                 Trip trip;
-                while (elevator.queue.TryDequeue(out trip))
+                while (elevator.Queue.TryDequeue(out trip))
                 {
                     elevator.CurrentTrip = trip;
                     ExecuteCurrentTrip(elevator);

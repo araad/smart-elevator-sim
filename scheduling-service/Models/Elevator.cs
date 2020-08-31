@@ -14,7 +14,7 @@ namespace scheduling_service
 
         public Boolean DoorsOpen { get; set; } = false;
 
-        public ConcurrentQueue<Trip> queue = new ConcurrentQueue<Trip>();
+        public ConcurrentQueue<Trip> Queue { get; } = new ConcurrentQueue<Trip>();
 
         public int GetTimeInSecondsToFloor(int floor)
         {

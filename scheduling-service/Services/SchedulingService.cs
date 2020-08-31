@@ -50,7 +50,7 @@ namespace scheduling_service.Services
             var elevator = GetNextAvailableElevator();
 
             trip.ElevatorId = elevator.Id;
-            elevator.queue.Enqueue(trip);
+            elevator.Queue.Enqueue(trip);
             _logger.LogInformation($"SchedulingService - Scheduling trip {trip.Id} to elevator {elevator.Id}");
             _hub.Clients.All.SendAsync("newTripRequest", elevator);
 
@@ -85,7 +85,7 @@ namespace scheduling_service.Services
                 totalDuration += e.CurrentTrip.duration;
             }
 
-            foreach (var trip in e.queue)
+            foreach (var trip in e.Queue)
             {
                 totalDuration += trip.duration;
             }
