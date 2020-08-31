@@ -6,34 +6,32 @@ using System.Threading.Tasks;
 using common_lib;
 using Microsoft.Extensions.Logging;
 
-public interface ICallPanel
+namespace call_panel_service.Services
 {
-    Task<int> CallElevator(TripRequest trip);
-}
-
-public class CallPanelService : ICallPanel
-{
-    private readonly ILogger<CallPanelService> _logger;
-    private readonly IHttpClientFactory _clientFactory;
-
-    public CallPanelService(ILogger<CallPanelService> logger, IHttpClientFactory clientFactory)
+    public class CallPanelService : ICallPanelService
     {
-        _logger = logger;
-        _clientFactory = clientFactory;
-    }
-    public async Task<int> CallElevator(TripRequest trip)
-    {
-        var tripJson = new StringContent(
-                JsonSerializer.Serialize(trip),
-                Encoding.UTF8,
-                "application/json");
+        private readonly ILogger<CallPanelService> _logger;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        var client = _clientFactory.CreateClient();
+        public CallPanelService(ILogger<CallPanelService> logger, IHttpClientFactory httpClientFactory)
+        {
+            _logger = logger;
+            _httpClientFactory = httpClientFactory;
+        }
+        public async Task<int> CallElevator(TripRequest tripRequest)
+        {
+            var tripJson = new StringContent(
+                    JsonSerializer.Serialize(tripRequest),
+                    Encoding.UTF8,
+                    "application/json");
 
-        var response = await client.PostAsync("http://localhost:5000/api/schedule", tripJson);
+            var client = _httpClientFactory.CreateClient();
 
-        var result = await response.Content.ReadAsStringAsync();
+            var response = await client.PostAsync("http://localhost:5000/api/schedule", tripJson);
 
-        return int.Parse(result);
+            var result = await response.Content.ReadAsStringAsync();
+
+            return int.Parse(result);
+        }
     }
 }

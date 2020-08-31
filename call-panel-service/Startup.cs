@@ -1,3 +1,4 @@
+using call_panel_service.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,7 +20,7 @@ namespace call_panel_service
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
-            services.Add(new ServiceDescriptor(typeof(ICallPanel), typeof(CallPanelService), ServiceLifetime.Transient));
+            services.AddTransient(typeof(ICallPanelService), typeof(CallPanelService));
             services.AddHostedService<CallSimulatorService>();
             services.AddControllers();
         }

@@ -31,18 +31,16 @@
           fxLayoutAlign="center center"
         >
           <div *ngIf="elevator.currentFloor === floor.level">
-            <ng-container *ngIf="elevator.queue.length > 0">
-              <mat-icon
-                *ngIf="!elevator.doorsOpen && elevator.currentDirection === 1"
-                >arrow_upward</mat-icon
-              >
-              <mat-icon
-                *ngIf="!elevator.doorsOpen && elevator.currentDirection === 0"
-                >arrow_downward</mat-icon
-              >
-            </ng-container>
+            <mat-icon
+              *ngIf="!elevator.doorsOpen && elevator.currentDirection === 1"
+              >arrow_upward</mat-icon
+            >
+            <mat-icon
+              *ngIf="!elevator.doorsOpen && elevator.currentDirection === -1"
+              >arrow_downward</mat-icon
+            >
             <div *ngIf="elevator.doorsOpen">Open</div>
-            <div *ngIf="!elevator.doorsOpen && elevator.queue.length === 0">
+            <div *ngIf="!elevator.doorsOpen && elevator.currentDirection === 0">
               Closed
             </div>
           </div>
@@ -50,23 +48,29 @@
       </div>
     </div>
   </div>
-  <div fxLayout="row wrap" fxLayoutGap="24px">
-    <div *ngFor="let elevator of elevators">
+  <div fxLayout="row wrap" fxLayoutGap="10px">
+    <div *ngFor="let elevator of elevators" class="elevator-log">
       <h4>Elevator {{ elevator.id }}</h4>
-      <p>Current Floor: {{ elevator.currentFloor }}</p>
-      <p>
-        Current Direction:
+      <div>Current Floor: {{ elevator.currentFloor }}</div>
+      <div>
+        Direction:
         {{
-          elevator.queue.length === 0 || elevator.doorsOpen
+          elevator.currentDirection === 0
             ? "n/a"
-            : elevator.currentDirection === 0
+            : elevator.currentDirection === -1
             ? "Down"
             : "Up"
         }}
-      </p>
-      <p>Doors: {{ elevator.doorsOpen ? "Open" : "Closed" }}</p>
-      <div *ngFor="let trip of elevator.queue">
-        <pre [ngClass]="{ active: trip?.status === 1 }">{{ trip | json }}</pre>
+      </div>
+      <div>Doors: {{ elevator.doorsOpen ? "Open" : "Closed" }}</div>
+      <div>
+        <div class="active">
+          <div style="text-decoration: underline">Active Trip</div>
+          <pre *ngIf="elevator.currentTrip">{{
+            elevator.currentTrip | json
+          }}</pre>
+        </div>
+        <pre *ngFor="let trip of elevator.queue">{{ trip | json }}</pre>
       </div>
     </div>
   </div>

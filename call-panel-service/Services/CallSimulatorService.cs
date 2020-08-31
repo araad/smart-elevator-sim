@@ -5,47 +5,56 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-public class CallSimulatorService : BackgroundService
+namespace call_panel_service.Services
 {
-    Thread simThread = null;
-
-    private readonly ILogger<CallSimulatorService> _logger;
-    private readonly ICallPanel _panelService;
-
-    public CallSimulatorService(ILogger<CallSimulatorService> logger, ICallPanel panelService)
+    public sealed class CallSimulatorService : BackgroundService
     {
-        _logger = logger;
-        _panelService = panelService;
-    }
+        Thread simThread = null;
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        simThread = new Thread(simulateElevatorCalls);
-        simThread.Start();
+        private readonly ILogger<CallSimulatorService> _logger;
+        private readonly ICallPanelService _callPanelService;
 
-        while (!stoppingToken.IsCancellationRequested)
+        public CallSimulatorService(ILogger<CallSimulatorService> logger, ICallPanelService callPanelService)
         {
-            await Task.Delay(1000, stoppingToken);
+            _logger = logger;
+            _callPanelService = callPanelService;
         }
-    }
 
-    private void simulateElevatorCalls()
-    {
-        var rand = new Random();
-        while (true)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var trip = new TripRequest();
-            trip.origin = rand.Next(Config.FLOOR_COUNT) + 1;
+            simThread = new Thread(SimulateElevatorCalls);
+            simThread.Start();
 
-            do
+            while (!stoppingToken.IsCancellationRequested)
             {
-                trip.destination = rand.Next(Config.FLOOR_COUNT) + 1;
-            } while (trip.origin == trip.destination);
+                await Task.Delay(1000, stoppingToken);
+            }
+        }
 
-            _logger.LogInformation($"Simulating new elevator call - origin: {trip.origin} \tdestination:{trip.destination}");
-            _panelService.CallElevator(trip).Wait();
+        public override async Task StopAsync(CancellationToken cancellationToken)
+        {
+            simThread.Abort();
+            await base.StopAsync(cancellationToken);
+        }
 
-            Thread.Sleep(rand.Next(2, 30) * 1000);
+        private void SimulateElevatorCalls()
+        {
+            var rand = new Random();
+            while (true)
+            {
+                var tripRequest = new TripRequest();
+                tripRequest.origin = rand.Next(Config.FloorCount) + 1;
+
+                do
+                {
+                    tripRequest.destination = rand.Next(Config.FloorCount) + 1;
+                } while (tripRequest.origin == tripRequest.destination);
+
+                _logger.LogInformation($"Simulating new elevator call - origin: {tripRequest.origin} \tdestination:{tripRequest.destination}");
+                _callPanelService.CallElevator(tripRequest).Wait();
+
+                Thread.Sleep(rand.Next(2, 20) * 1000);
+            }
         }
     }
 }
