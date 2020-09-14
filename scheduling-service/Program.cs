@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace scheduling_service
 {
@@ -18,6 +14,18 @@ namespace scheduling_service
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    var configDir = Path.GetFullPath(Path.Combine("..", "config"));
+
+                    config.AddJsonFile(Path.Combine(configDir, "building.config.json"),
+                        optional: false,
+                        reloadOnChange: true);
+
+                    config.AddJsonFile(Path.Combine(configDir, "elevator.config.json"),
+                        optional: false,
+                        reloadOnChange: true);
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

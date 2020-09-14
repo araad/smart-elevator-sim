@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using common_lib;
 
 namespace scheduling_service
 {
@@ -15,11 +14,6 @@ namespace scheduling_service
         public Boolean DoorsOpen { get; set; } = false;
 
         public ConcurrentQueue<Trip> Queue { get; } = new ConcurrentQueue<Trip>();
-
-        public int GetTimeInSecondsToFloor(int floor)
-        {
-            return (Math.Abs(floor - CurrentFloor) * Config.FloorHeight) / Config.ElevatorSpeed;
-        }
 
         public Direction GetDirection(int destination)
         {

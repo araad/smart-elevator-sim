@@ -1,0 +1,6 @@
+{
+  "Elevator": {
+    "DoorsOpenDuration": 20,
+    "Speed": 2
+  }
+}

@@ -3,11 +3,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using common_lib;
+using common_lib.Configuration;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using scheduling_service.Configuration;
 using scheduling_service.Hubs;
 
 namespace scheduling_service.Services
@@ -16,18 +17,25 @@ namespace scheduling_service.Services
     {
         private readonly ILogger<SchedulingService> _logger;
         private readonly IHubContext<ElevatorTrackingHub> _hub;
+        private IServiceProvider _serviceProvider;
+        private readonly BuildingConfiguration _buildingConfiguration;
+        private readonly ElevatorConfiguration _elevatorConfiguration;
 
         private List<Elevator> _elevators = new List<Elevator>();
         private ConcurrentQueue<Trip> _queue = new ConcurrentQueue<Trip>();
 
-        private IServiceProvider _serviceProvider;
-
-        public SchedulingService(ILogger<SchedulingService> logger, IHubContext<ElevatorTrackingHub> hub, IServiceProvider serviceProvider)
+        public SchedulingService(ILogger<SchedulingService> logger,
+                                 IHubContext<ElevatorTrackingHub> hub,
+                                 IServiceProvider serviceProvider,
+                                 BuildingConfiguration buildingConfiguration,
+                                 ElevatorConfiguration elevatorConfiguration)
         {
             _logger = logger;
             _serviceProvider = serviceProvider;
+            _buildingConfiguration = buildingConfiguration;
+            _elevatorConfiguration = elevatorConfiguration;
 
-            for (int i = 0; i < Config.ElevatorCount; i++)
+            for (int i = 0; i < _buildingConfiguration.ElevatorCount; i++)
             {
                 var elevator = new Elevator();
                 elevator.Id = i;
@@ -82,15 +90,21 @@ namespace scheduling_service.Services
 
             if (e.CurrentTrip != null)
             {
-                totalDuration += e.CurrentTrip.duration;
+                totalDuration += GetTripDuration(e.CurrentTrip);
             }
 
             foreach (var trip in e.Queue)
             {
-                totalDuration += trip.duration;
+                totalDuration += GetTripDuration(trip);
             }
 
             return totalDuration;
+        }
+
+        int GetTripDuration(Trip trip)
+        {
+            int secondsToCrossOneFloor = _buildingConfiguration.FloorHeight / _elevatorConfiguration.Speed;
+            return Math.Abs(trip.Destination - trip.Origin) * secondsToCrossOneFloor;
         }
 
         public List<Elevator> GetElevators()

@@ -1,4 +1,5 @@
 using call_panel_service.Services;
+using common_lib.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +20,10 @@ namespace call_panel_service
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var buildingConfig = new BuildingConfiguration();
+            Configuration.Bind("Building", buildingConfig);
+            services.AddSingleton(buildingConfig);
+
             services.AddHttpClient();
             services.AddTransient(typeof(ICallPanelService), typeof(CallPanelService));
             services.AddHostedService<CallSimulatorService>();
@@ -34,9 +39,7 @@ namespace call_panel_service
             }
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
-
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

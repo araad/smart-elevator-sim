@@ -1,4 +1,5 @@
 using common_lib;
+using common_lib.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,11 +14,15 @@ namespace call_panel_service.Services
 
         private readonly ILogger<CallSimulatorService> _logger;
         private readonly ICallPanelService _callPanelService;
+        private readonly BuildingConfiguration _buildingConfiguration;
 
-        public CallSimulatorService(ILogger<CallSimulatorService> logger, ICallPanelService callPanelService)
+        public CallSimulatorService(ILogger<CallSimulatorService> logger,
+                                    ICallPanelService callPanelService,
+                                    BuildingConfiguration buildingConfiguration)
         {
             _logger = logger;
             _callPanelService = callPanelService;
+            _buildingConfiguration = buildingConfiguration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -40,20 +45,37 @@ namespace call_panel_service.Services
         private void SimulateElevatorCalls()
         {
             var rand = new Random();
+            var retries = 0;
+
             while (true)
             {
                 var tripRequest = new TripRequest();
-                tripRequest.origin = rand.Next(Config.FloorCount) + 1;
+                tripRequest.origin = rand.Next(_buildingConfiguration.FloorCount) + 1;
 
                 do
                 {
-                    tripRequest.destination = rand.Next(Config.FloorCount) + 1;
+                    tripRequest.destination = rand.Next(_buildingConfiguration.FloorCount) + 1;
                 } while (tripRequest.origin == tripRequest.destination);
 
                 _logger.LogInformation($"Simulating new elevator call - origin: {tripRequest.origin} \tdestination:{tripRequest.destination}");
-                _callPanelService.CallElevator(tripRequest).Wait();
+                try
+                {
+                    _callPanelService.CallElevator(tripRequest).Wait();
+                    Thread.Sleep(rand.Next(2, 20) * 1000);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex.ToString());
 
-                Thread.Sleep(rand.Next(2, 20) * 1000);
+                    if (retries++ > 1)
+                    {
+                        _logger.LogInformation("Too many timeouts, stopping");
+                        break;
+                    }
+
+                    _logger.LogInformation("Retrying in 60 seconds...");
+                    Thread.Sleep(6000);
+                }
             }
         }
     }

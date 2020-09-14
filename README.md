@@ -52,8 +52,6 @@ npm run start
 ## TODO
 
 - Use Docker Compose
-- Replace `Config.cs` in `common-lib` with a JSON configuration
-  file
 - Add ASP<span></span>.NET Core Identity
 - Persistent storage with a database using Entity Framework Core
 - Improve scheduling algorithm (Inspiration: http://www.columbia.edu/~cs2035/courses/ieor4405.S13/p14.pdf)

@@ -1,14 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using common_lib;
 using scheduling_service.Services;
+using common_lib.Configuration;
 
 namespace scheduling_service.Controllers
 {
@@ -18,13 +16,16 @@ namespace scheduling_service.Controllers
     {
         private readonly ILogger<ElevatorSchedulingController> _logger;
         private readonly SchedulingService _schedulingSrv = null;
+        private readonly BuildingConfiguration _buildingConfiguration;
 
         public ElevatorSchedulingController(
             ILogger<ElevatorSchedulingController> logger,
-            [FromServices] IEnumerable<IHostedService> services)
+            [FromServices] IEnumerable<IHostedService> services,
+            BuildingConfiguration buildingConfiguration)
         {
             _logger = logger;
             _schedulingSrv = services.FirstOrDefault(x => x is SchedulingService) as SchedulingService;
+            _buildingConfiguration = buildingConfiguration;
         }
 
         [HttpPost]
@@ -47,7 +48,7 @@ namespace scheduling_service.Controllers
         {
             _logger.LogInformation("getFloorCount request");
 
-            return Ok(Config.FloorCount);
+            return Ok(_buildingConfiguration.FloorCount);
         }
 
         [HttpGet("elevators")]
