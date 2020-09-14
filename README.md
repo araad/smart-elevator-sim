@@ -7,21 +7,42 @@ This project contains 4 parts:
 - **Scheduling service**: Single instance service repsonsible for receiving requests to use an elevator and assigning the next available elevator to the caller.
 - **Call Panel service**: Represents the Call Panel found on each floor used to input which floor the caller wants to go to. The Call Panel service will call the Scheduling service and informs the caller which elevator to go to.
 - **Client app**: A simple UI (built with Angular 10) where the caller can input the floor they wish to go to. For this demo app, it also shows the entire state of the elevators in an `NxM` grid where `N` is the number of elevators and `M` is the number of floors. The UI also shows every elevator and its state along with its trip request queue to help while testing and debugging.
-- **Common lib**: Includes common files and configuration.
+- **Common lib**: Includes common files.
 
-To get a real-time reading of each elevator's state and its trip request queues, this project uses SignalR to create a `hub` on the Scheduling service that is publishing the data to the client. The client is using the the following npm package https://www.npmjs.com/package/@microsoft/signalr which contains a TypeScript client library used to subscribe to those notifications.
+To get a real-time reading of each elevator's state and its trip request queues, this project uses SignalR to create a `hub` on the Scheduling service that is publishing the data to the subscribed clients.
 
-In a real world scenario, there would be a Call Panel service instance running for each physical Call Panel found in the building. For testing purposes, the Call Panel service includes a background service that randomly generates trip requests for different floors. For now, this can be turned off by commenting out the following line in the corresponding Startup.cs file:
+In a real world scenario, there would be a Call Panel service instance running for each physical Call Panel found in the building. For testing purposes, the Call Panel service includes a background service that randomly generates trip requests for different floors which can be enabled/disabled through a configuration file.
+<br/>
+<br/>
+## Configuration
+In addition to the included `appsettings.json` files in each service, there is also a folder called `config` that contains additional files for the call panel simulation, building and elevator configurations.
 
-```csharp
-services.AddHostedService<CallSimulatorService>();
-```
+```json
+// building.config.json
+{
+  "Building": {
+    "FloorCount": 12,
+    "FloorHeight": 4, // meters
+    "ElevatorCount": 6
+  }
+}
 
-Or can be configured by modifying the arguments passed to the random number generator in the `CallSimulatorService.cs` file shown below:
+// elevator.config.json
+{
+  "Elevator": {
+    "DoorsOpenDuration": 20, // seconds
+    "Speed": 2 // meters per second
+  }
+}
 
-```csharp
-// Wait between 2 - 20 seconds to generate a new trip request
-Thread.Sleep(rand.Next(2, 20) * 1000);
+// call-panel.config.json
+{
+  "CallPanel": {
+    "CallPanelSimulationEnabled": true,
+    "MinDelayBetweenSimulatedCalls": 2, // seconds
+    "MaxDelayBetweenSimulatedCalls": 20 // seconds
+  }
+}
 ```
 
 ## Run the project

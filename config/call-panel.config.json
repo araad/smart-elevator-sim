@@ -1,0 +1,7 @@
+{
+  "CallPanel": {
+    "CallPanelSimulationEnabled": true,
+    "MinDelayBetweenSimulatedCalls": 2,
+    "MaxDelayBetweenSimulatedCalls": 20
+  }
+}

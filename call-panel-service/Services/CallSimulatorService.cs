@@ -1,3 +1,4 @@
+using call_panel_service.Configuration;
 using common_lib;
 using common_lib.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -15,14 +16,17 @@ namespace call_panel_service.Services
         private readonly ILogger<CallSimulatorService> _logger;
         private readonly ICallPanelService _callPanelService;
         private readonly BuildingConfiguration _buildingConfiguration;
+        private readonly CallPanelConfiguration _callPanelConfiguration;
 
         public CallSimulatorService(ILogger<CallSimulatorService> logger,
                                     ICallPanelService callPanelService,
-                                    BuildingConfiguration buildingConfiguration)
+                                    BuildingConfiguration buildingConfiguration,
+                                    CallPanelConfiguration callPanelConfiguration)
         {
             _logger = logger;
             _callPanelService = callPanelService;
             _buildingConfiguration = buildingConfiguration;
+            _callPanelConfiguration = callPanelConfiguration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -46,6 +50,8 @@ namespace call_panel_service.Services
         {
             var rand = new Random();
             var retries = 0;
+            var minDelay = _callPanelConfiguration.MinDelayBetweenSimulatedCalls;
+            var maxDelay = _callPanelConfiguration.MaxDelayBetweenSimulatedCalls;
 
             while (true)
             {
@@ -61,7 +67,7 @@ namespace call_panel_service.Services
                 try
                 {
                     _callPanelService.CallElevator(tripRequest).Wait();
-                    Thread.Sleep(rand.Next(2, 20) * 1000);
+                    Thread.Sleep(rand.Next(minDelay, maxDelay) * 1000);
                 }
                 catch (Exception ex)
                 {

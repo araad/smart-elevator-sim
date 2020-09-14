@@ -1,3 +1,4 @@
+using call_panel_service.Configuration;
 using call_panel_service.Services;
 using common_lib.Configuration;
 using Microsoft.AspNetCore.Builder;
@@ -24,9 +25,18 @@ namespace call_panel_service
             Configuration.Bind("Building", buildingConfig);
             services.AddSingleton(buildingConfig);
 
+            var callPanelConfig = new CallPanelConfiguration();
+            Configuration.Bind("CallPanel", callPanelConfig);
+            services.AddSingleton(callPanelConfig);
+
             services.AddHttpClient();
             services.AddTransient(typeof(ICallPanelService), typeof(CallPanelService));
-            services.AddHostedService<CallSimulatorService>();
+
+            if (callPanelConfig.CallPanelSimulationEnabled)
+            {
+                services.AddHostedService<CallSimulatorService>();
+            }
+
             services.AddControllers();
         }
 

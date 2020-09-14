@@ -16,9 +16,13 @@ namespace call_panel_service
             Host.CreateDefaultBuilder(args)
             .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    var configPath = Path.GetFullPath(Path.Combine("..", "config", "building.config.json"));
+                    var configDir = Path.GetFullPath(Path.Combine("..", "config"));
 
-                    config.AddJsonFile(configPath,
+                    config.AddJsonFile(Path.Combine(configDir, "building.config.json"),
+                        optional: false,
+                        reloadOnChange: true);
+
+                    config.AddJsonFile(Path.Combine(configDir, "call-panel.config.json"),
                         optional: false,
                         reloadOnChange: true);
                 })
