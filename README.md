@@ -49,30 +49,39 @@ In addition to the included `appsettings.json` files in each service, there is a
 
 1. Build and run the services
 
-```bash
-# scheduling-service on port 5000
-cd scheduling-service
-dotnet run
+    ```bash
+    # scheduling-service on port 5000
+    cd scheduling-service
+    dotnet run
 
-# call-panel-service on port 5002
-cd call-panel-service
-dotnet run
-```
+    # call-panel-service on port 5002
+    cd call-panel-service
+    dotnet run
+    ```
 
 2. Build and run the client app
 
-```bash
-# client-app on port 4200
-cd client-app
-npm install
-npm run start
-```
+    ```bash
+    # client-app on port 4200
+    cd client-app
+    npm install
+    npm run start
+    ```
 
 3. Open browser and go to http://localhost:4200
 
+## Run with docker-compose
+
+1. Create a copy from `example.env` to `.env` and modify the values in the file to correspond with your environemnt.
+
+2. Start services and serve client app.
+    ```bash
+    docker-compose up
+    ```
+3. Open browser and go to http://localhost:4201
+
 ## TODO
 
-- Use Docker Compose
 - Add ASP<span></span>.NET Core Identity
 - Persistent storage with a database using Entity Framework Core
 - Improve scheduling algorithm (Inspiration: http://www.columbia.edu/~cs2035/courses/ieor4405.S13/p14.pdf)

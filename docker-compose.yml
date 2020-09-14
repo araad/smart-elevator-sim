@@ -1,0 +1,49 @@
+version: '3.2'
+services:
+  scheduling-service:
+    container_name: scheduling-service
+    image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    ports:
+      - '5100:5100'
+    volumes:
+      - ${PROJECT_ROOT_DIR}/config:/opt/config
+      - ${PROJECT_ROOT_DIR}/common-lib:/opt/common-lib
+      - ${PROJECT_ROOT_DIR}/scheduling-service:/opt/scheduling-service
+    working_dir: /opt/scheduling-service
+    command: dotnet watch run --launch-profile scheduling_service_docker
+    networks:
+      - smart_elevator_sim
+
+  call-panel-service:
+    container_name: call-panel-service
+    image: mcr.microsoft.com/dotnet/core/sdk:3.1
+    ports:
+      - '5102:5102'
+    volumes:
+      - ${PROJECT_ROOT_DIR}/config:/opt/config
+      - ${PROJECT_ROOT_DIR}/common-lib:/opt/common-lib
+      - ${PROJECT_ROOT_DIR}/call-panel-service:/opt/call-panel-service
+    working_dir: /opt/call-panel-service
+    command: dotnet watch run --launch-profile call_panel_service_docker
+    networks:
+      - smart_elevator_sim
+    depends_on:
+      - scheduling-service
+
+  client-app:
+    container_name: client-app
+    image: trion/ng-cli:10.0.8
+    ports:
+      - '4201:4200'
+    volumes:
+      - ${PROJECT_ROOT_DIR}/client-app:/app
+    command: ng serve --configuration docker --host 0.0.0.0
+    networks:
+      - smart_elevator_sim
+    depends_on:
+      - scheduling-service
+      - call-panel-service
+
+networks:
+  smart_elevator_sim:
+    driver: bridge
